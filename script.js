@@ -62,8 +62,8 @@ var terrain = new THREE.Mesh( geometry, material );
 terrain.rotation.x = -Math.PI / 2;
 scene.add( terrain );
 
-var audio = new Audio('./PHANTASY STAR ONLINE.mp3');
-audio.play();
+
+
 const sun = new THREE.Vector3();
 
   // Water
