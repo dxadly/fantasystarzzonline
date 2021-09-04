@@ -2,6 +2,8 @@ import * as THREE from "https://cdn.skypack.dev/three";
 import { Water } from "https://cdn.skypack.dev/pin/three@v0.132.2-1edwuDlviJO0abBvWgKd/mode=imports/unoptimized/examples/jsm/objects/Water.js";
 import { Sky } from "https://cdn.skypack.dev/pin/three@v0.132.2-1edwuDlviJO0abBvWgKd/mode=imports/unoptimized/examples/jsm/objects/Sky.js"
 
+
+
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // /*jshint esversion: 6 */
 const Palette = {
@@ -73,7 +75,7 @@ const sun = new THREE.Vector3();
     {
       textureWidth: 512,
       textureHeight: 512,
-      waterNormals: new THREE.TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
+      waterNormals: new THREE.TextureLoader().load( './waternormals.jpg', function ( texture ) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
