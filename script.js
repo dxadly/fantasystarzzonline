@@ -1,5 +1,6 @@
 import * as THREE from "https://cdn.skypack.dev/three";
-
+import { Water } from "https://cdn.skypack.dev/pin/three@v0.132.2-1edwuDlviJO0abBvWgKd/mode=imports/unoptimized/examples/jsm/objects/Water.js";
+import { Sky } from "https://cdn.skypack.dev/pin/three@v0.132.2-1edwuDlviJO0abBvWgKd/mode=imports/unoptimized/examples/jsm/objects/Sky.js"
 
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // /*jshint esversion: 6 */
@@ -50,6 +51,9 @@ light.position.set(camera.position.x, camera.position.y+500, camera.position.z+5
 scene.add(light);
 
 // Setup the terrain
+
+
+
 var geometry = new THREE.PlaneBufferGeometry( 2000, 2000, 256, 256 );
 var material = new THREE.MeshLambertMaterial({color: Colors.TerrainColor});
 var terrain = new THREE.Mesh( geometry, material );
@@ -58,6 +62,95 @@ scene.add( terrain );
 
 var audio = new Audio('./PHANTASY STAR ONLINE.mp3');
 audio.play();
+const sun = new THREE.Vector3();
+
+  // Water
+
+  const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
+
+    const water = new Water(
+    waterGeometry,
+    {
+      textureWidth: 512,
+      textureHeight: 512,
+      waterNormals: new THREE.TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
+
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+      } ),
+      sunDirection: new THREE.Vector3(),
+      sunColor: 0xffffff,
+      waterColor: 0x001e0f,
+      distortionScale: 3.7,
+      fog: scene.fog !== undefined
+    }
+  );
+
+  water.rotation.x = - Math.PI / 2;
+  water.position.y = -15
+
+  scene.add( water );
+
+  // Skybox
+
+  const sky = new Sky();
+  sky.scale.setScalar( 10000 );
+  scene.add( sky );
+
+  const skyUniforms = sky.material.uniforms;
+
+  skyUniforms[ 'turbidity' ].value = 10;
+  skyUniforms[ 'rayleigh' ].value = 2;
+  skyUniforms[ 'mieCoefficient' ].value = 0.005;
+  skyUniforms[ 'mieDirectionalG' ].value = 0.8;
+
+  const parameters = {
+    elevation: 2,
+    azimuth: 180
+  };
+
+  const pmremGenerator = new THREE.PMREMGenerator( renderer );
+
+  function updateSun() {
+
+    const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
+    const theta = THREE.MathUtils.degToRad( parameters.azimuth );
+
+    sun.setFromSphericalCoords( 1, phi, theta );
+
+    sky.material.uniforms[ 'sunPosition' ].value.copy( sun );
+    water.material.uniforms[ 'sunDirection' ].value.copy( sun ).normalize();
+
+    scene.environment = pmremGenerator.fromScene( sky ).texture;
+
+  }
+
+  updateSun();
+
+  //
+    const geometry2 = new THREE.BoxGeometry( 30, 30, 30 );
+    const material2 = new THREE.MeshStandardMaterial( { roughness: 0 } );
+
+    const mesh2 = new THREE.Mesh( geometry2, material2 );
+    scene.add( mesh2 );
+
+  //
+
+
+
+
+
+  const waterUniforms = water.material.uniforms;
+
+
+
+
+
+
+
+
+
+
 
 
 var perlin = new Perlin();
@@ -81,9 +174,9 @@ var texture = loader.load( "./sky.png" );
 var material = new THREE.MeshPhongMaterial({
   map: texture,
 });
-var sky = new THREE.Mesh(skyGeo, material);
- sky.material.side = THREE.BackSide;
- scene.add(sky);
+var skyLow = new THREE.Mesh(skyGeo, material);
+skyLow.material.side = THREE.BackSide;
+scene.add(skyLow);
 
 var orbGeo = new THREE.SphereGeometry(500, 500, 500);
 var orbLoader  = new THREE.TextureLoader();
@@ -99,15 +192,23 @@ var clock = new THREE.Clock();
 var movementSpeed = 60;
 function update() {
     var delta = clock.getDelta();
-    terrain.position.z += movementSpeed * delta;
+    terrain.position.z += movementSpeed * delta * 2;
 
     // terrain.position.y += movementSpeed * delta;
     camera.position.z += movementSpeed * delta;
+    camera.position.y += .05
     sky.position.z += movementSpeed * delta * - .01;
     refreshVertices();
 }
 
 function render() {
+
+  const time = performance.now() * 0.001;
+
+  mesh2.position.y = Math.sin( time ) * 20 + 5;
+  mesh2.rotation.x = time * 0.5;
+  mesh2.rotation.z = time * 0.51;
+    water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
     renderer.render( scene, camera );
 }
 
